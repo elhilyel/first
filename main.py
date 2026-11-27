@@ -1,4 +1,5 @@
-import requests
+from urllib.error import URLError
+from urllib.request import Request, urlopen
 
 GITHUB_ZEN_URL = "https://api.github.com/zen"
 
@@ -9,9 +10,9 @@ def fetch_github_zen() -> str:
         "Accept": "application/vnd.github+json",
         "User-Agent": "github-zen-cli-python",
     }
-    response = requests.get(GITHUB_ZEN_URL, headers=headers, timeout=10)
-    response.raise_for_status()
-    return response.text.strip()
+    request = Request(GITHUB_ZEN_URL, headers=headers)
+    with urlopen(request, timeout=10) as response:
+        return response.read().decode("utf-8").strip()
 
 
 def main() -> None:
@@ -21,7 +22,7 @@ def main() -> None:
         print(f"\n{border}")
         print(f"  💡 {quote}")
         print(f"{border}\n")
-    except requests.exceptions.RequestException as err:
+    except URLError as err:
         print(f"❌ تعذّر الاتصال بـ GitHub: {err}")
 
 
